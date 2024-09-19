@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -173,7 +173,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -906,6 +906,41 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+
+  {
+    'voldikss/vim-floaterm',
+
+    keys = {
+      {
+        '<C-\\>',
+        function()
+          local prev_dir = vim.fn.getcwd()
+          local file_dir = vim.fn.expand '%:p:h'
+          if file_dir and vim.fn.isdirectory(file_dir) == 1 then
+            vim.cmd('cd ' .. vim.fn.fnameescape(file_dir))
+            vim.cmd 'FloatermToggle'
+            vim.cmd 'hi FloatermBorder guifg=cyan'
+            vim.cmd('cd ' .. vim.fn.fnameescape(prev_dir))
+          else
+            print 'Invalid directory for the current file.'
+          end
+        end,
+        mode = 'n', -- Normal mode
+        desc = "Toggle terminal and set directory to current file's directory",
+      },
+      {
+        '<C-\\>',
+        function()
+          vim.cmd 'FloatermToggle'
+          vim.cmd 'FloatermKill[!]'
+        end,
+        mode = 't', -- Terminal mode
+        desc = "Toggle terminal and set directory to current file's directory",
+      },
+    },
+
+    -- Optional: any other configuration options for Floaterm can be added here
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
