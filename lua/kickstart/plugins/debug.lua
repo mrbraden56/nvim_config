@@ -29,13 +29,13 @@ return {
     local dapui = require 'dapui'
     return {
       -- Basic debugging keymaps, feel free to change to your liking!
-      { '<F5>', dap.continue, desc = 'Debug: Start/Continue' },
-      { '<F1>', dap.step_into, desc = 'Debug: Step Into' },
-      { '<F2>', dap.step_over, desc = 'Debug: Step Over' },
-      { '<F3>', dap.step_out, desc = 'Debug: Step Out' },
-      { '<leader>b', dap.toggle_breakpoint, desc = 'Debug: Toggle Breakpoint' },
+      { '<leader>dc', dap.continue, desc = 'Debug: Start/Continue' },
+      { '<leader>di', dap.step_into, desc = 'Debug: Step Into' },
+      { '<leader>dv', dap.step_over, desc = 'Debug: Step Over' },
+      { '<leader>dou', dap.step_out, desc = 'Debug: Step Out' },
+      { '<leader>db', dap.toggle_breakpoint, desc = 'Debug: Toggle Breakpoint' },
       {
-        '<leader>B',
+        '<leader>dB',
         function()
           dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
         end,
@@ -99,6 +99,44 @@ return {
         -- On Windows delve must be run attached or it crashes.
         -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
         detached = vim.fn.has 'win32' == 0,
+      },
+    }
+
+    dap.set_breakpoint(nil, nil, 'Reading input')
+    vim.keymap.set('n', '<leader>dt', function()
+      require('dapui').float_element('console', { enter = true })
+    end, { desc = 'Focus DAP Terminal' })
+
+    -- Add Go debug configuration
+    dap.configurations.go = {
+      {
+        type = 'go',
+        name = 'Debug Go (File)',
+        request = 'launch',
+        program = '${file}',
+      },
+      {
+        type = 'go',
+        name = 'Debug Go (with make debug)',
+        request = 'launch',
+        mode = 'exec',
+        program = function()
+          -- Run make debug
+          os.execute 'make debug'
+
+          -- The binary name is known from the Makefile
+          local binary_name = 'goqlite'
+
+          -- Check if the binary exists
+          local binary_path = vim.fn.getcwd() .. '/' .. binary_name
+          if vim.fn.filereadable(binary_path) == 0 then
+            error('Binary not found: ' .. binary_path)
+          end
+
+          return binary_path
+        end,
+        args = { '-d', '-input=select', 'mydb.db' },
+        cwd = '${workspaceFolder}',
       },
     }
   end,

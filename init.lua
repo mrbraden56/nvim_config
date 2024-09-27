@@ -952,10 +952,10 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
@@ -987,5 +987,36 @@ require('lazy').setup({
   },
 })
 
+vim.keymap.set('n', '<leader>rpt', function()
+  local function get_test_command()
+    -- This is just an example. Modify this to return your actual test command.
+    return 'python -m unittest discover'
+  end
+
+  local command = get_test_command()
+
+  -- Create a floating terminal window
+  vim.cmd 'botright new'
+  vim.cmd 'resize 15'
+  vim.cmd 'set winfixheight'
+  vim.cmd 'setlocal buftype=nofile'
+
+  -- Open terminal in the new window
+  vim.cmd('terminal ' .. command)
+
+  -- Switch to normal mode
+  vim.cmd 'startinsert'
+end, { desc = 'Run Python Tests in Terminal' })
+
+vim.keymap.set('n', '<leader>se', function()
+  vim.diagnostic.open_float(0, {
+    scope = 'line',
+    header = 'Diagnostics:',
+    source = 'always',
+    focusable = false,
+    close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
+  })
+end, { desc = 'Show LSP error in hover text' })
+
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+--rpt vim: ts=2 sts=2 sw=2 et
